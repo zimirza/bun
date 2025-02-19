@@ -1766,6 +1766,21 @@ pub fn access(path: bun.OSPathSliceZ, mode: i32) Maybe(void) {
 
 pub fn openat(dirfd: bun.FileDescriptor, file_path: [:0]const u8, flags: i32, perm: bun.Mode) Maybe(bun.FileDescriptor) {
     if (comptime Environment.isWindows) {
+        const allocator = std.heap.page_allocator;
+
+        var path = std.ArrayList(u8).init(allocator);
+        errdefer path.deinit();
+
+        for (file_path) |c| {
+            if (c == '/') {
+                try path.append('\\');
+            } else {
+                try path.append(c);
+            }
+        }
+
+        file_path = path.toOwnedSlice();
+
         return openatWindowsT(u8, dirfd, file_path, flags, perm);
     } else {
         return openatOSPath(dirfd, file_path, flags, perm);
