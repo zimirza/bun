@@ -1766,6 +1766,7 @@ pub fn access(path: bun.OSPathSliceZ, mode: i32) Maybe(void) {
 
 pub fn openat(dirfd: bun.FileDescriptor, file_path: [:0]const u8, flags: i32, perm: bun.Mode) Maybe(bun.FileDescriptor) {
     if (comptime Environment.isWindows) {
+        // TODO: Don't use heap allocation
         const allocator = std.heap.page_allocator;
 
         var path = std.ArrayList(u8).init(allocator);
